@@ -22,7 +22,7 @@ export default function Home() {
       const res = await fetch("/api/v1/users");
       const data = await res.json();
       setUserData(data.userDB);
-    } catch { }
+    } catch {}
     finally { setLoading(false); }
   };
 
@@ -31,10 +31,9 @@ export default function Home() {
       const res = await fetch("/api/v1/teams");
       const data = await res.json();
       setTeamData(data.TeamDB);
-    } catch { }
+    } catch {}
   };
 
-  // Filter logic
   const filteredUsers = useMemo(() => {
     return userData.filter((user) => {
       const matchSearch =
@@ -48,11 +47,9 @@ export default function Home() {
 
   const roles = [...new Set(userData.map((u) => u.roleName))];
 
-  // Export Excel
   const exportExcel = () => {
     if (filteredUsers.length === 0) return alert("ไม่มีข้อมูลให้ export");
 
-    // สร้าง sheet
     const ws = XLSX.utils.json_to_sheet(
       filteredUsers.map((u) => ({
         DiscordName: u.username,
@@ -65,32 +62,32 @@ export default function Home() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Users");
 
-    // แปลงเป็น blob และ save
     const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([wbout], { type: "application/octet-stream" });
     saveAs(blob, "UserList.xlsx");
   };
 
   return (
-    <div className="w-screen min-h-screen bg-zinc-50 dark:bg-black flex items-center justify-center p-6">
-      <div className="w-full max-w-5xl bg-white dark:bg-zinc-900 rounded-xl shadow-lg p-6">
+    <div className="w-full min-h-screen bg-zinc-50 dark:bg-black flex justify-center p-2 sm:p-6">
+      <div className="w-full max-w-5xl bg-white dark:bg-zinc-900 rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
+
         <h1 className="text-2xl font-bold mb-4 text-zinc-800 dark:text-white">
           👥 รายชื่อผู้ใช้งาน
         </h1>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-3 mb-4">
           <input
             type="text"
             placeholder="ค้นหา Discord / ชื่อ"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:outline-none"
+            className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white focus:outline-none"
           />
           <select
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           >
             <option value="all">ทุกทีม</option>
             {teamData.map((team) => (
@@ -100,7 +97,7 @@ export default function Home() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+            className="px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
           >
             <option value="all">ทุกตำแหน่ง</option>
             {roles.map((role) => (
@@ -113,13 +110,13 @@ export default function Home() {
               setTeamFilter("all");
               setRoleFilter("all");
             }}
-            className="px-4 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition"
+            className="px-3 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition"
           >
             ล้างตัวกรอง
           </button>
           <button
             onClick={exportExcel}
-            className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition"
+            className="px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition"
           >
             Export Excel
           </button>
@@ -129,8 +126,8 @@ export default function Home() {
         {loading ? (
           <p className="text-center text-zinc-500">กำลังโหลดข้อมูล...</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-[600px] border-collapse w-full">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
+            <table className="table-auto w-full min-w-0 border-collapse">
               <thead className="hidden sm:table-header-group">
                 <tr className="bg-zinc-100 dark:bg-zinc-800 text-left">
                   <th className="p-2 sm:p-3 text-sm font-semibold">DiscordName</th>
@@ -142,7 +139,7 @@ export default function Home() {
               <tbody>
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="text-center p-6 text-zinc-500">
+                    <td colSpan="4" className="text-center p-4 text-zinc-500">
                       ไม่พบข้อมูล
                     </td>
                   </tr>
@@ -152,17 +149,16 @@ export default function Home() {
                       key={user.id}
                       className="border-b border-zinc-200 dark:border-zinc-700 sm:hover:bg-zinc-50 dark:sm:hover:bg-zinc-800 transition block sm:table-row"
                     >
-                      {/* Mobile-friendly labels */}
-                      <td className="p-2 sm:p-3 text-sm block sm:table-cell">
+                      <td className="p-2 sm:p-3 text-sm block sm:table-cell wrap-break-word">
                         <span className="sm:hidden font-semibold">Discord:</span> {user.username}
                       </td>
-                      <td className="p-2 sm:p-3 text-sm block sm:table-cell">
+                      <td className="p-2 sm:p-3 text-sm block sm:table-cell wrap-break-word">
                         <span className="sm:hidden font-semibold">Name:</span> {user.user_name}
                       </td>
-                      <td className="p-2 sm:p-3 text-sm block sm:table-cell">
+                      <td className="p-2 sm:p-3 text-sm block sm:table-cell wrap-break-word">
                         <span className="sm:hidden font-semibold">Team:</span> {user.team_name}
                       </td>
-                      <td className="p-2 sm:p-3 text-sm block sm:table-cell">
+                      <td className="p-2 sm:p-3 text-sm block sm:table-cell wrap-break-word">
                         <span className="sm:hidden font-semibold">Role:</span>
                         <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium ml-1 sm:ml-0">
                           {user.roleName}
